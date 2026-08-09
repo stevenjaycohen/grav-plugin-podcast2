@@ -1,37 +1,27 @@
-# Podcast Plugin
+# Podcast 2 Plugin
 
-The **Podcast** Plugin is for [Grav CMS](http://github.com/getgrav/grav). This plugin creates the following:
+The **Podcast 2** Plugin is a maintained fork for [Grav CMS](http://github.com/getgrav/grav). This plugin creates the following:
 
 - Admin Page templates for Podcast Channel, Podcast Series, and Podcast Episode
 - An iTunes compatible podcast RSS feed, both at the Podcast Channel (all episodes) and Podcast Series (only a series' episodes)
 
-![Limited Development](https://img.shields.io/badge/Limited%20Development-1000?style=for-the-badge&logo=PHP&logoColor=ffffff&labelColor=000000&color=000000)
+~~**Limited Development:** At this time, the project will not be converted to support Grav v2.0.~~
 
-> At this time, the project will not be converted to support Grav v2.0
+This fork exists to add and maintain Grav 2 compatibility, including support for the Admin2 API-based Page editor. Version 4 supports both Grav 1.7 and Grav 2.0.
 
 ## Installation
 
-Installing the Podcast plugin can be done in one of two ways. The GPM (Grav Package Manager) installation method enables you to quickly and easily install the plugin with a simple terminal command, while the manual method enables you to do so via a zip file.
+This fork is not distributed or updated through the Grav Package Manager. Download the zip version of [this repository](https://github.com/stevenjaycohen/grav-plugin-podcast2), extract it under `user/plugins`, and rename the extracted directory to `podcast2`.
 
-### GPM Installation (Preferred)
-
-The simplest way to install this plugin is via the [Grav Package Manager (GPM)](http://learn.getgrav.org/advanced/grav-gpm) through your system's terminal (also called the command line). From the root of your Grav install type:
-
-    bin/gpm install podcast
-
-This will install the Podcast plugin into your `/user/plugins` directory within Grav. Its files can be found under `/your/site/grav/user/plugins/podcast`.
-
-### Manual Installation
-
-To install this plugin, just download the zip version of this repository and unzip it under `/your/site/grav/user/plugins`. Then, rename the folder to `podcast`. You can find these files on [GitHub](https://github.com//grav-plugin-podcast) or via [GetGrav.org](http://getgrav.org/downloads/plugins#extras).
+The directory name must be `podcast2`. Do not replace `user/plugins/podcast`; Podcast 2 has a separate plugin identity and configuration. Its GPM updates are disabled, so updates published for the original `podcast` slug cannot replace this fork.
 
 You should now have all the plugin files under
 
-    /your/site/grav/user/plugins/podcast
+    /your/site/grav/user/plugins/podcast2
 
 > NOTE: This plugin is a modular component for Grav which requires the following to operate:
 
-- [Grav Core](http://github.com/getgrav/grav)
+- [Grav Core](http://github.com/getgrav/grav) 1.7 or 2.0
 - [Admin](https://github.com/getgrav/grav-plugin-admin)
 - [Breadcrumbs](https://github.com/getgrav/grav-plugin-breadcrumbs)
 - [Feed](https://github.com/getgrav/grav-plugin-feed)
@@ -41,7 +31,7 @@ You should now have all the plugin files under
 
 ## Configuration
 
-Before configuring this plugin, you should copy the `user/plugins/podcast/podcast.yaml` to `user/config/plugins/podcast.yaml` and only edit that copy.
+Before configuring this plugin, copy `user/plugins/podcast2/podcast2.yaml` to `user/config/plugins/podcast2.yaml` and only edit that copy.
 
 Here is the default configuration and an explanation of available options:
 
@@ -111,4 +101,4 @@ These should be created as child pages of either a podcast channel or a podcast 
 
 ## To Do
 
-Submit any issues you find to the [issue queue](https://github.com/jgonyea/grav-plugin-podcast/issues).
+Submit any issues you find to the [issue queue](https://github.com/stevenjaycohen/grav-plugin-podcast2/issues).

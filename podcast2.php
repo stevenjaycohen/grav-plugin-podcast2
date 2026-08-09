@@ -12,11 +12,11 @@ use Symfony\Component\Yaml\Yaml;
 use Grav\Plugin\GetID3Plugin;
 
 /**
- * Class PodcastPlugin
+ * Class Podcast2Plugin
  *
  * @package Grav\Plugin
  */
-class PodcastPlugin extends Plugin
+class Podcast2Plugin extends Plugin
 {
     /** @var array */
     public $features = [
@@ -37,7 +37,12 @@ class PodcastPlugin extends Plugin
     {
         return [
             'onPluginsInitialized' => ['onPluginsInitialized', 0],
-            ];
+            // These events must be subscribed in every request context. Admin2
+            // performs Page operations through the API, where isAdmin() is false.
+            'onGetPageBlueprints' => ['onGetPageBlueprints', 0],
+            'onGetPageTemplates' => ['onGetPageTemplates', 0],
+            'onAdminSave' => ['onAdminSave', 0],
+        ];
     }
 
     /**
@@ -45,36 +50,38 @@ class PodcastPlugin extends Plugin
      */
     public function onPluginsInitialized(): void
     {
-        // If in an Admin page.
-        if ($this->isAdmin()) {
+        if (!$this->isAdmin()) {
             $this->enable([
-                'onGetPageTemplates' => ['onGetPageTemplates', 0],
-                'onAdminSave' => ['onAdminSave', 0],
+                'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1],
+                'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
             ]);
-            return;
         }
-        // If not in an Admin page.
-        $this->enable([
-            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1],
-            'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
-        ]);
     }
 
     /**
-     * Add blueprint directory to page templates.
+     * Add the plugin's Page blueprints.
      */
-    public function onGetPageTemplates(Event $event)
+    public function onGetPageBlueprints(Event $event): void
     {
         $types = $event->types;
         $locator = Grav::instance()['locator'];
         $types->scanBlueprints($locator->findResource('plugin://' . $this->name . '/blueprints'));
+    }
+
+    /**
+     * Add the plugin's Page templates.
+     */
+    public function onGetPageTemplates(Event $event): void
+    {
+        $types = $event->types;
+        $locator = Grav::instance()['locator'];
         $types->scanTemplates($locator->findResource('plugin://' . $this->name . '/templates'));
     }
 
     /**
      * Add templates directory to twig lookup paths.
      */
-    public function onTwigTemplatePaths()
+    public function onTwigTemplatePaths(): void
     {
         $this->grav['twig']->twig_paths[] = $this->grav['locator']->findResource('plugin://' . $this->name . '/templates');
     }
@@ -132,7 +139,16 @@ class PodcastPlugin extends Plugin
 
         if (isset($header->podcast['audio']['local']['select'])) {
             $local['select'] = $header->podcast['audio']['local']['select'];
-            $media = $page->media()->audios()[$local['select']];
+            $media = $page->media()->audios()[$local['select']] ?? null;
+
+            if ($media === null) {
+                $this->grav['messages']?->add(
+                    "Podcast audio file '{$local['select']}' was not found in the Page media.",
+                    'error'
+                );
+                $header->undef('podcast.audio.meta');
+                return;
+            }
 
             // Create array for backawards compatability with Grav content created with < v1.7.
             $audio = $header->podcast['audio'];
@@ -237,10 +253,10 @@ class PodcastPlugin extends Plugin
      *
      * @param string $url
      *     http(s) path to audio file.
-     * @return string
-     *     filepath to temp file.
+     * @return string|null
+     *     Filepath to the temporary file, or null when it cannot be fetched.
      */
-    public function getRemoteAudio($url): string
+    public function getRemoteAudio(string $url): ?string
     {
         // Make sure the url is reachable.
         $ch = curl_init($url);
@@ -271,6 +287,9 @@ class PodcastPlugin extends Plugin
 
             return $local_file;
         }
+
+        $this->grav['messages']->add("Unable to read remote audio file '$url'.", 'error');
+        return null;
     }
 
     /**

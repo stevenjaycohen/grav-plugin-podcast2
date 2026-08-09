@@ -11,30 +11,35 @@ form:
       fields:
         content:
           type: tab
-          title: PLUGIN_PODCAST.ADMIN.EPISODE.CONTENT.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.EPISODE.CONTENT.TAB_TITLE
           fields:
             header.title:
               ordering@: 1
               type: text
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.CONTENT.PAGE_TITLE_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.CONTENT.PAGE_TITLE_LABEL
             header.podcast.itunes.subtitle:
               ordering@: 2
               type: text
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.CONTENT.SUBTITLE_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.CONTENT.SUBTITLE_LABEL
             header.podcast.episode_number:
               ordering@: 3
               type: text
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.CONTENT.EPISODE_NUMBER_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.CONTENT.EPISODE_NUMBER_LABEL
               size: x-small
+            header.podcast.guid:
+              ordering@: 4
+              type: text
+              label: Persistent GUID
+              help: Keep this value unchanged after the episode has appeared in a feed.
         podcastAudio:
             type: tab
-            title: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.TAB_TITLE
+            title: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.TAB_TITLE
             ordering@: 1
             fields:
                 locally_hosted:
                     type: spacer
-                    title: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.LOCAL_HOSTED_LABEL
-                    text: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.LOVAL_HOSTED_HELPTEXT
+                    title: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.LOCAL_HOSTED_LABEL
+                    text: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.LOVAL_HOSTED_HELPTEXT
                 header.podcast.audio.local.select:
                     type: filepicker
                     label: Local Podcast Audio
@@ -44,30 +49,30 @@ form:
                       - .ogg
                 external_cdn:
                     type: spacer
-                    title: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_HOSTED_LABEL
-                    text: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_HOSTED_HELPTEXT
+                    title: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_HOSTED_LABEL
+                    text: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_HOSTED_HELPTEXT
                 header.podcast.audio.remote:
                     type: text
-                    label: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_URL_LABEL
-                    help: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_URL_HELPTEXT
+                    label: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_URL_LABEL
+                    help: PLUGIN_PODCAST2.ADMIN.EPISODE.PODCAST_AUDIO.EXTERNAL_URL_HELPTEXT
         itunesMetaTab:
           type: tab
           ordering@: 2
-          title: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.TAB_TITLE
           fields:
             helptext:
               type: spacer
-              text: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.TAB_HELPTEXT
+              text: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.TAB_HELPTEXT
               underline: true
             header.podcast.itunes.author:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.AUTHOR_LABEL
-              help: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.AUTHOR_HELPTEXT
-              data-default@: ['\Grav\Plugin\PodcastPlugin::getCurrentUserInfo', 'fullname']
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.AUTHOR_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.AUTHOR_HELPTEXT
+              data-default@: ['\Grav\Plugin\Podcast2Plugin::getCurrentUserInfo', 'fullname']
             header.podcast.itunes.image:
               type: filepicker
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.IMAGE_LABEL
-              help: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.IMAGE_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.IMAGE_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.IMAGE_HELPTEXT
               accept:
                 - .png
                 - .bmp
@@ -75,10 +80,9 @@ form:
                 - .jpg
             header.podcast.itunes.explicit:
               type: toggle
-              label: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.EXPLICIT_LABEL
-              help: PLUGIN_PODCAST.ADMIN.EPISODE.ITUNES_META.EXPLICIT_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.EXPLICIT_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.EPISODE.ITUNES_META.EXPLICIT_HELPTEXT
               default: no
               options:
                   yes: PLUGIN_ADMIN.YES
                   no: PLUGIN_ADMIN.NO
-

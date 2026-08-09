@@ -12,11 +12,13 @@ form:
         content:
           type: tab
           ordering@: 0
-          title: PLUGIN_PODCAST.ADMIN.CHANNEL.CONTENT.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.CHANNEL.CONTENT.TAB_TITLE
           fields:
             header.title:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CONTENT.PAGE_TITLE_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CONTENT.PAGE_TITLE_LABEL
+              validate:
+                required: true
 
             header.content.rss:
               type: hidden
@@ -28,90 +30,104 @@ form:
         channelMetaTab:
           type: tab
           ordering@: 1
-          title: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.TAB_TITLE
           fields:
             helptext:
               type: spacer
               title:
-              text: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.TAB_HELPTEXT
+              text: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.TAB_HELPTEXT
               underline: true
             header.podcast.title:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_TITLE_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_TITLE_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_TITLE_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_TITLE_HELPTEXT
+              validate:
+                required: true
             header.podcast.itunes.subtitle:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUBTITLE_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUBTITLE_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUBTITLE_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUBTITLE_HELPTEXT
             header.podcast.itunes.summary:
               type: textarea
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUMMARY_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUMMARY_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUMMARY_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_SUMMARY_HELPTEXT
             header.podcast.description:
               type: markdown
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_DESCRIPTION_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_DESCRIPTION_LABEL
             header.podcast.link:
-              type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LINK_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LINK_HELPTEXT
+              type: url
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LINK_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LINK_HELPTEXT
               default: 'https://www.example.com'
+              validate:
+                required: true
             header.podcast.channelLanguage:
               type: select
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LANG_LABEL
-              help:  PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LANG_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LANG_LABEL
+              help:  PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_LANG_HELPTEXT
               default: 'en'
-              data-options@: '\Grav\Plugin\PodcastPlugin::getLanguageOptions'
+              data-options@: '\Grav\Plugin\Podcast2Plugin::getLanguageOptions'
+              validate:
+                required: true
             header.podcast.copyright:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.CHANNEL_META.PODCAST_COPYRIGHT_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.CHANNEL_META.PODCAST_COPYRIGHT_LABEL
               default: 2021 Example.com
 
         itunesMetaTab:
           type: tab
           ordering@: 2
-          title: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.TAB_TITLE
           fields:
             helptext:
               type: spacer
               title:
-              text: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.TAB_HELPTEXT
+              text: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.TAB_HELPTEXT
               underline: true
             header.podcast.itunes.author:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_AUTHOR_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_AUTHOR_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_AUTHOR_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_AUTHOR_HELPTEXT
             header.podcast.itunes.owner.name:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_HELPTEXT
-              data-default@: ['\Grav\Plugin\PodcastPlugin::getCurrentUserInfo', 'fullname']
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_HELPTEXT
+              data-default@: ['\Grav\Plugin\Podcast2Plugin::getCurrentUserInfo', 'fullname']
+              validate:
+                required: true
             header.podcast.itunes.owner.email:
               type: email
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_EMAIL_LABEL
-              help: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_EMAIL_HELPTEXT
-              data-default@: ['\Grav\Plugin\PodcastPlugin::getCurrentUserInfo', 'email']
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_EMAIL_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_OWNER_EMAIL_HELPTEXT
+              data-default@: ['\Grav\Plugin\Podcast2Plugin::getCurrentUserInfo', 'email']
+              validate:
+                required: true
             header.podcast.itunes.image:
               type: filepicker
-              label:  PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_IMAGE_LABEL
+              label:  PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_IMAGE_LABEL
               accept:
                 - .bmp
                 - .png
                 - .jpg
                 - .jpeg
+              validate:
+                required: true
             header.podcast.itunes.category:
               type: select
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_CATEGORY_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_CATEGORY_LABEL
               size: long
               classes: fancy
-              data-options@: '\Grav\Plugin\PodcastPlugin::getCategoryOptions'
+              data-options@: '\Grav\Plugin\Podcast2Plugin::getCategoryOptions'
+              validate:
+                required: true
             header.podcast.itunes.subcategory:
               type: select
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_SUBCATEGORY_LABEL
-              data-options@: '\Grav\Plugin\PodcastPlugin::getSubCategoryOptions'
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_SUBCATEGORY_LABEL
+              data-options@: '\Grav\Plugin\Podcast2Plugin::getSubCategoryOptions'
 
             header.podcast.itunes.explicit:
               type: toggle
-              label: PLUGIN_PODCAST.ADMIN.CHANNEL.ITUNES_META.ITUNES_EXPLICIT_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.CHANNEL.ITUNES_META.ITUNES_EXPLICIT_LABEL
               highlight: 0
               default: no
               help: Does this podcast contain content that might be inappropriate for children?

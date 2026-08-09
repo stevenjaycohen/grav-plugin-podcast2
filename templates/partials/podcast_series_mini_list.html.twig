@@ -17,13 +17,13 @@
 {% endif %}
 
 <div class="episodes-mini-list">
-    <h3>{{ 'PLUGIN_PODCAST.SERIES_CONTENT.LATEST_SERIES'|t }}</h3>
+    <h3>{{ 'PLUGIN_PODCAST2.SERIES_CONTENT.LATEST_SERIES'|t }}</h3>
     <ul>
         {% for s in series %}
             <li><a href="{{ s.url() }}">{{ s.title }}</a></li>
         {% endfor %}
         {% if (series|length > 1) %}
-            <li><a href="{{ page.parent.url() }}">{{ 'PLUGIN_PODCAST.WORDS.MORE'|t|e }} >></a></li>
+            <li><a href="{{ page.parent.url() }}">{{ 'PLUGIN_PODCAST2.WORDS.MORE'|t|e }} >></a></li>
         {% endif %}
     </ul>
 </div>

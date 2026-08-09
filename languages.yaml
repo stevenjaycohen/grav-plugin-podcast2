@@ -1,5 +1,5 @@
 en:
-  PLUGIN_PODCAST:
+  PLUGIN_PODCAST2:
     CONFIG:
       MAX_UPLOAD_LABEL: Max Podcast Filesize (MB)
       MAX_UPLOAD_HELP: 'Set "upload_max_filesize" and "post_max_size" in php.ini to at least this value or higher.'
@@ -84,7 +84,7 @@ en:
           EXPLICIT_LABEL: Explicit Content
           EXPLICIT_HELPTEXT: Does this podcast contain content that might be inappropriate for children?
 fr:
-  PLUGIN_PODCAST:
+  PLUGIN_PODCAST2:
     CONFIG:
       MAX_UPLOAD_LABEL: Taille maximale des fichiers podcast (Mo)
       MAX_UPLOAD_HELP: 'Définissez «upload_max_filesize» et «post_max_size» dans php.ini à au moins cette valeur ou plus.'
@@ -106,7 +106,7 @@ fr:
       WARNING: Votre navigateur ne prend pas en charge la balise audio.
       EMPTY: Aucun contenu disponible.
 pt:
-  PLUGIN_PODCAST:
+  PLUGIN_PODCAST2:
     CONFIG:
       MAX_UPLOAD_LABEL: Tamanho máximo do arquivo podcast (MB)
       MAX_UPLOAD_HELP: 'Defina “upload_max_filesize” e “post_max_size” em php.ini para ao menos este valor ou maior.'
@@ -128,7 +128,7 @@ pt:
       WARNING: Seu navegador não suporta a etiqueta de áudio.
       EMPTY: Nenhum conteúdo disponível.
 de:
-  PLUGIN_PODCAST:
+  PLUGIN_PODCAST2:
     CONFIG:
       MAX_UPLOAD_LABEL: Maximale Dateigröße für Podcast (MB)
       MAX_UPLOAD_HELP: 'Setze "upload_max_filesize" und "post_max_size" in der php.ini auf diesen Wert oder höher.'

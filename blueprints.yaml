@@ -1,17 +1,24 @@
-name: Podcast
-version: 3.1.0
-description: Creates Podcast page types and related podcast RSS feeds
+name: Podcast 2
+type: plugin
+slug: podcast2
+version: 4.0.0
+description: Maintained Grav 2-compatible fork providing Podcast page types and RSS feeds
 icon: microphone
 author:
   name: Jeremy Gonyea
   email: jeremy.gonyea@gmail.com
-homepage: https://github.com/jgonyea/grav-plugin-podcast
+homepage: https://github.com/stevenjaycohen/grav-plugin-podcast2
 keywords: grav, plugin, podcast, music
-bugs: https://github.com/jgonyea/grav-plugin-podcast/issues
-docs: https://github.com/jgonyea/grav-plugin-podcast/blob/develop/README.md
+bugs: https://github.com/stevenjaycohen/grav-plugin-podcast2/issues
+docs: https://github.com/stevenjaycohen/grav-plugin-podcast2/blob/develop/README.md
 license: MIT
+gpm: false
+
+compatibility:
+  grav: ['1.7', '2.0']
 
 dependencies:
+  - { name: grav, version: '>=1.7.0' }
   - breadcrumbs
   - feed
   - get-id3
