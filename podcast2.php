@@ -12,11 +12,11 @@ use Symfony\Component\Yaml\Yaml;
 use Grav\Plugin\GetID3Plugin;
 
 /**
- * Class PodcastPlugin
+ * Class Podcast2Plugin
  *
  * @package Grav\Plugin
  */
-class PodcastPlugin extends Plugin
+class Podcast2Plugin extends Plugin
 {
     /** @var array */
     public $features = [

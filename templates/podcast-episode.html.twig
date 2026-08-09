@@ -27,8 +27,8 @@
         <div class="podcast-flex-child podcast-flex-full">
             {% if (header.podcast.audio.meta.guid) %}
                 <div class="podcast-episode-audio">
-                    <audio controls preload="metadata"><source src="{{ page.header.podcast.audio.meta.guid|e('html_attr') }}">{{ 'PLUGIN_PODCAST.EPISODE_CONTENT.WARNING'|t|e }}</audio><br>
-                    <a href ="{{ header.podcast.audio.meta.guid }}">{{ 'PLUGIN_PODCAST.EPISODE_CONTENT.DOWNLOAD'|t|e }}</a> | Published {{ episode_datestamp|nicetime(false) }}
+                    <audio controls preload="metadata"><source src="{{ page.header.podcast.audio.meta.guid|e('html_attr') }}">{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.WARNING'|t|e }}</audio><br>
+                    <a href ="{{ header.podcast.audio.meta.guid }}">{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.DOWNLOAD'|t|e }}</a> | Published {{ episode_datestamp|nicetime(false) }}
                 </div>
             {% else %}
                 <div><p>No audio for this episode</p></div>
@@ -37,9 +37,9 @@
 
         <div class="podcast-flex-child podcast-page-content">
             {% if not page.content %}
-                <p>{{ 'PLUGIN_PODCAST.EPISODE_CONTENT.EMPTY'|t|e }}</p>
+                <p>{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.EMPTY'|t|e }}</p>
             {% else %}
-                <h3>{{ 'PLUGIN_PODCAST.EPISODE_CONTENT.HEADER'|t|e }}</h3>
+                <h3>{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.HEADER'|t|e }}</h3>
                 {% if(header.podcast.itunes.image) %} {{ page.media[header.podcast.itunes.image].lightbox(600,400).zoomCrop(200,200).html(header.podcast.itunes.image ,'','podcast-content-image')|raw }} {% endif %}
                 {{ page.content|raw }}
             {% endif %}

@@ -17,11 +17,11 @@
         </div>
 
         <div class="podcast-flex-child podcast-page-content">
-            <h3>{{ 'PLUGIN_PODCAST.SERIES_CONTENT.HEADER'|t|e }}</h3>
+            <h3>{{ 'PLUGIN_PODCAST2.SERIES_CONTENT.HEADER'|t|e }}</h3>
             {% if(header.series.image) %} {{ page.media[header.series.image].lightbox(600,400).zoomCrop(200,200).html(header.podcast.itunes.image,'','podcast-content-image')|raw }} {% endif %}
 
             {% if not page.content %}
-                <p>{{ 'PLUGIN_PODCAST.EPISODE_CONTENT.EMPTY'|t|e }}</p>
+                <p>{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.EMPTY'|t|e }}</p>
             {% else %}
                 {{ page.content|raw }}
             {% endif %}

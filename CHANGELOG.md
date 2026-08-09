@@ -3,6 +3,7 @@
 
 1. [](#new)
    * Declare and test Grav 2.0 compatibility.
+   * Rename the plugin identity to `podcast2` so the fork installs independently from the original `podcast` plugin.
    * Register page blueprints and templates for both classic Admin and Admin2/API requests.
    * Add an optional persistent episode GUID field.
 

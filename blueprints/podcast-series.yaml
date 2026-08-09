@@ -12,11 +12,11 @@ form:
         content:
           type: tab
           ordering@: 0
-          title: PLUGIN_PODCAST.ADMIN.SERIES.CONTENT.TAB_TITLE
+          title: PLUGIN_PODCAST2.ADMIN.SERIES.CONTENT.TAB_TITLE
           fields:
             header.title:
               type: text
-              label: PLUGIN_PODCAST.ADMIN.SERIES.CONTENT.PAGE_TITLE_LABEL
+              label: PLUGIN_PODCAST2.ADMIN.SERIES.CONTENT.PAGE_TITLE_LABEL
             header.content.rss:
               type: hidden
               default: 'true'
@@ -25,8 +25,8 @@ form:
               default: '@self.children'
             header.series.image:
               type: filepicker
-              label: PLUGIN_PODCAST.ADMIN.SERIES.CONTENT.SERIES_IMAGE_LABEL
-              help: PLUGIN_PODCAST.ADMIN.SERIES.CONTENT.SERIES_IMAGE_HELPTEXT
+              label: PLUGIN_PODCAST2.ADMIN.SERIES.CONTENT.SERIES_IMAGE_LABEL
+              help: PLUGIN_PODCAST2.ADMIN.SERIES.CONTENT.SERIES_IMAGE_HELPTEXT
               ordering@: 2
               accept:
                 - .png
