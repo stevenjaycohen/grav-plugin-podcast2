@@ -109,6 +109,9 @@ class Podcast2Plugin extends Plugin
         }
         /** @var Header $header */
         $header = $page->header();
+        if (!$header instanceof Header) {
+            $header = new Header((array) $header);
+        }
 
         if (str_starts_with($page->template(), 'podcast-')) {
             // Set autodate field on all podcast-* page types.
@@ -129,7 +132,7 @@ class Podcast2Plugin extends Plugin
 
         // Return with just updated header content if not podcast-episode.
         if ($page->template() != 'podcast-episode') {
-            $header = new Header((array)$header);
+            $page->header($header->toArray());
             return;
         }
 
@@ -147,6 +150,7 @@ class Podcast2Plugin extends Plugin
                     'error'
                 );
                 $header->undef('podcast.audio.meta');
+                $page->header($header->toArray());
                 return;
             }
 
@@ -202,7 +206,7 @@ class Podcast2Plugin extends Plugin
             $header->undef('podcast.audio');
         }
 
-        $header = new Header((array)$header);
+        $page->header($header->toArray());
         return;
     }
 

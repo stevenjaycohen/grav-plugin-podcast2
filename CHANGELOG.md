@@ -15,6 +15,7 @@
 
 3. [](#bugfix)
    * Remove `isAdmin()`-gated event registration that hides page types and skips save processing in Grav 2 Admin2.
+   * Normalize legacy `stdClass` Page headers before applying podcast save-hook changes.
    * Fix invalid or unreachable `<itunes:image>` values.
    * Fix the series feed link, empty category output, XML escaping, XML declaration whitespace, and fallback feed last-modified calculation.
    * Remove debug output from episode pages and fix malformed series template markup.
