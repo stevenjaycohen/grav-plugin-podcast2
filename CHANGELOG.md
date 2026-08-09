@@ -1,3 +1,23 @@
+# v4.0.0
+## Unreleased
+
+1. [](#new)
+   * Declare and test Grav 2.0 compatibility.
+   * Register page blueprints and templates for both classic Admin and Admin2/API requests.
+   * Add an optional persistent episode GUID field.
+
+2. [](#improved)
+   * Use each series' artwork for its RSS channel image and safe fallbacks for channel and episode images.
+   * Preserve explicit episode GUIDs when present.
+   * Validate required podcast channel metadata in Admin.
+   * Handle missing local audio selections and failed remote downloads without type errors.
+
+3. [](#bugfix)
+   * Remove `isAdmin()`-gated event registration that hides page types and skips save processing in Grav 2 Admin2.
+   * Fix invalid or unreachable `<itunes:image>` values.
+   * Fix the series feed link, empty category output, XML escaping, XML declaration whitespace, and fallback feed last-modified calculation.
+   * Remove debug output from episode pages and fix malformed series template markup.
+
 # v3.1.0
 ## 04/11/2024
 

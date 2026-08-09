@@ -1,71 +1,84 @@
-{# Need to find if we're at the podcast-channel or a podcast-series page #}
-{% if page.template == 'podcast-channel' %}
-{% set channel = page %}
-{% elseif page.template == 'podcast-series' %}
-{% set channel = page.parent %}
-{% endif %}
-{% if channel %}
+{%- if page.template == 'podcast-channel' -%}
+    {%- set channel = page -%}
+{%- elseif page.template == 'podcast-series' -%}
+    {%- set channel = page.parent -%}
+{%- endif -%}
+{%- if channel -%}
+{%- set feed_image = channel.media[channel.header.podcast.itunes.image] ?: channel.media.images|first -%}
+{%- if page.template == 'podcast-series' -%}
+    {%- set feed_image = page.media[page.header.series.image] ?: page.media.images|first ?: feed_image -%}
+{%- elseif not feed_image -%}
+    {%- set first_series = page.collection({ 'items': '@self.descendants' }).ofType('podcast-series')|first -%}
+    {%- if first_series -%}
+        {%- set feed_image = first_series.media[first_series.header.series.image] ?: first_series.media.images|first -%}
+    {%- endif -%}
+{%- endif -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
 <channel>
-<title>{{ channel.header.podcast.title }}</title>
-<link>{{ header.podcast.link }}</link>
-<language>{{ channel.header.podcast.channelLanguage }}</language>
-<copyright>{{ channel.header.podcast.copyright }}</copyright>
-<itunes:subtitle>{{ channel.header.podcast.itunes.subtitle }}</itunes:subtitle>
-<itunes:author>{{ channel.header.podcast.itunes.author }}</itunes:author>
-<itunes:summary>{{ channel.header.podcast.itunes.summary ?: (channel.content ? channel.content : channel.header.podcast.description)|striptags }}</itunes:summary>
-<description>{{ channel.header.podcast.description|striptags }}</description>
+<title>{{ channel.header.podcast.title|e }}</title>
+<link>{{ channel.header.podcast.link|e }}</link>
+<language>{{ channel.header.podcast.channelLanguage|e }}</language>
+<copyright>{{ channel.header.podcast.copyright|e }}</copyright>
+<itunes:subtitle>{{ channel.header.podcast.itunes.subtitle|e }}</itunes:subtitle>
+<itunes:author>{{ channel.header.podcast.itunes.author|e }}</itunes:author>
+<itunes:summary>{{ (channel.header.podcast.itunes.summary ?: (channel.content ? channel.content : channel.header.podcast.description)|striptags)|e }}</itunes:summary>
+<description>{{ channel.header.podcast.description|striptags|e }}</description>
 <itunes:owner>
-    <itunes:name>{{ channel.header.podcast.itunes.owner.name }}</itunes:name>
-    <itunes:email>{{ channel.header.podcast.itunes.owner.email }}</itunes:email>
+    <itunes:name>{{ channel.header.podcast.itunes.owner.name|e }}</itunes:name>
+    <itunes:email>{{ channel.header.podcast.itunes.owner.email|e }}</itunes:email>
 </itunes:owner>
-<itunes:image href="{{ uri.base }}{{ channel.media[channel.header.podcast.itunes.image].url(true) }}"/>
-<itunes:category text="{{ channel.header.podcast.itunes.category }}">
-    <itunes:category text="{{ channel.header.podcast.itunes.subcategory }}"/>
+{% if feed_image %}<itunes:image href="{{ (uri.base ~ feed_image.url(true))|e('html_attr') }}"/>{% endif %}
+{% if channel.header.podcast.itunes.category %}
+<itunes:category text="{{ channel.header.podcast.itunes.category|e('html_attr') }}">
+    {% if channel.header.podcast.itunes.subcategory %}<itunes:category text="{{ channel.header.podcast.itunes.subcategory|e('html_attr') }}"/>{% endif %}
 </itunes:category>
+{% endif %}
 <itunes:explicit>{{ channel.header.podcast.itunes.explicit }}</itunes:explicit>
-{% set episodes = page.collection({ 'items': '@self.descendants', 'order': {'by': 'date', 'dir': 'desc'}} ).ofType('podcast-episode') %}
+{% set episodes = page.collection({ 'items': '@self.descendants', 'order': {'by': 'date', 'dir': 'desc'} }).ofType('episode') %}
 {% for episode in episodes %}
-{% if episode.header.podcast.audio.meta %}
+{% if episode.header.podcast.audio.meta or episode.header.audio_url %}
 <item>
-    <title>{{ episode.title }}</title>
-    <link>{{ episode.url(true) }}</link>
-    {% if episode.header.podcast.episode_number -%}
-    <itunes:episode>{{ episode.header.podcast.episode_number }}</itunes:episode>
+    <title>{{ episode.title|e }}</title>
+    <link>{{ episode.url(true)|e }}</link>
+    {% set episode_number = episode.header.podcast.episode_number ?: episode.header.episode_number %}
+    {% if episode_number -%}
+    <itunes:episode>{{ episode_number }}</itunes:episode>
     {% endif -%}
-    <itunes:author>{{ episode.header.podcast.itunes.author }}</itunes:author>
-    <itunes:subtitle>{{ episode.header.podcast.itunes.subtitle }}</itunes:subtitle>
-    <itunes:summary>{{ episode.content|striptags|truncate(120, true, " ", "&#x2026;")}}</itunes:summary>
-    {% if episode.header.podcast.itunes.image -%}
-    <itunes:image href="{{ uri.base }}{{ episode.media[episode.header.podcast.itunes.image].url(true) }}"/>
-    {% else %}
-    <itunes:image href="{{ uri.base }}{{ url("plugin://podcast/assets/images/default.jpg") }} }}"/>
+    <itunes:author>{{ episode.header.podcast.itunes.author|e }}</itunes:author>
+    <itunes:subtitle>{{ episode.header.podcast.itunes.subtitle|e }}</itunes:subtitle>
+    <itunes:summary>{{ episode.content|striptags|truncate(120, true, " ", "…")|e }}</itunes:summary>
+    {% set episode_image = episode.media[episode.header.podcast.itunes.image] ?: episode.media.images|first -%}
+    {% if episode_image -%}
+    <itunes:image href="{{ (uri.base ~ episode_image.url(true))|e('html_attr') }}"/>
     {% endif -%}
-    {% if ( episode.header.podcast.audio.remote ) -%}
-    <enclosure length="{{ episode.header.podcast.audio.meta.enclosure_length }}" type="{{ episode.header.podcast.audio.meta.type }}" url="{{ episode.header.podcast.audio.remote }}"/>
-    <guid>{{ episode.header.podcast.audio.remote }}</guid>
+    {% if episode.header.audio_url -%}
+    <enclosure length="{{ episode.header.audio_bytes }}" type="{{ episode.header.audio_mime|e('html_attr') }}" url="{{ episode.media[episode.header.audio_url].url(true)|e('html_attr') }}"/>
+    <guid isPermaLink="false">{{ episode.header.guid|e }}</guid>
+    {% elseif episode.header.podcast.audio.remote -%}
+    <enclosure length="{{ episode.header.podcast.audio.meta.enclosure_length }}" type="{{ episode.header.podcast.audio.meta.type|e('html_attr') }}" url="{{ episode.header.podcast.audio.remote|e('html_attr') }}"/>
+    <guid isPermaLink="false">{{ (episode.header.podcast.guid ?: episode.header.guid ?: episode.header.podcast.audio.remote)|e }}</guid>
     {% else -%}
-    <enclosure length="{{ episode.header.podcast.audio.meta.enclosure_length }}" type="{{ episode.header.podcast.audio.meta.type }}" url="{{ uri.base }}{{ episode.header.podcast.audio.meta.guid }}"/>
-    <guid>{{ uri.base }}{{ episode.header.podcast.audio.meta.guid }}</guid>
+    <enclosure length="{{ episode.header.podcast.audio.meta.enclosure_length }}" type="{{ episode.header.podcast.audio.meta.type|e('html_attr') }}" url="{{ (uri.base ~ episode.header.podcast.audio.meta.guid)|e('html_attr') }}"/>
+    <guid isPermaLink="false">{{ (episode.header.podcast.guid ?: episode.header.guid ?: uri.base ~ episode.header.podcast.audio.meta.guid)|e }}</guid>
     {% endif -%}
     <pubDate>{{ episode.header.publish_date ? episode.header.publish_date|date('r') : episode.date|date('r') }}</pubDate>
+    {% if episode.header.podcast.audio.meta.duration -%}
     <itunes:duration>{{ episode.header.podcast.audio.meta.duration }}</itunes:duration>
-    <itunes:explicit>{{ episode.header.podcast.itunes.explicit }}</itunes:explicit>
+    {% endif -%}
+    <itunes:explicit>{{ episode.header.podcast.itunes.explicit ?: 'no' }}</itunes:explicit>
 </item>
 {% endif %}
 {% endfor %}
 </channel>
 </rss>
 {% else %}
-{# Copied from the default feed.rss.twig #}
-{# Format specification: https://www.rssboard.org/rss-specification #}
 {% set collection = collection|default(page.collection) %}
 {% set lastBuildDate = 0 %}
-{% for page in collection %}
-    {%- set lastBuildDate = max(lastBuildDate, page.date) %}
+{% for item in collection %}
+    {%- set lastBuildDate = max(lastBuildDate, item.date) %}
     {%- if collection.params.show_last_modified %}
-        {%- set lastBuildDate = max(feed_updated, page.modified) %}
+        {%- set lastBuildDate = max(lastBuildDate, item.modified) %}
     {%- endif %}
 {% endfor %}
 <?xml version="1.0" encoding="utf-8"?>
@@ -73,7 +86,7 @@
     <channel>
         <title>{{ collection.params.title }}</title>
         <link>{{ page.url(true) }}</link>
-        <atom:link href="{{ uri.rootUrl(true)~uri.uri() }}" rel="self" type="application/rss+xml"/>
+        <atom:link href="{{ uri.rootUrl(true) ~ uri.uri() }}" rel="self" type="application/rss+xml"/>
         <description>{{ collection.params.description }}</description>
         <language>{{ grav.language.getLanguage|default(config.system.language.default_lang)|default('en') }}</language>
         <lastBuildDate>{{ lastBuildDate|date('D, d M Y H:i:s O') }}</lastBuildDate>
@@ -84,17 +97,11 @@
             <link>{{ item.url(true) }}</link>
             <guid>{{ item.url(true) }}</guid>
             <pubDate>{{ item.date|date('D, d M Y H:i:s O') }}</pubDate>
-            <description>
-                <![CDATA[
-                {% if banner %}
-                {{ banner.cropZoom(1200,800).html|absolute_url|raw }}
-                {% endif %}
+            <description><![CDATA[
+                {% if banner %}{{ banner.cropZoom(1200,800).html|absolute_url|raw }}{% endif %}
                 {{ item.content|safe_truncate_html(collection.params.length)|raw }}
-                ]]>
-            </description>
-            {% for tag in item.taxonomy.tag %}
-                <category>{{ tag|e }}</category>
-            {% endfor %}
+            ]]></description>
+            {% for tag in item.taxonomy.tag %}<category>{{ tag|e }}</category>{% endfor %}
         </item>
         {% endfor %}
     </channel>

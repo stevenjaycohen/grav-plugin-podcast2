@@ -1,5 +1,7 @@
 name: Podcast
-version: 3.1.0
+type: plugin
+slug: podcast
+version: 4.0.0
 description: Creates Podcast page types and related podcast RSS feeds
 icon: microphone
 author:
@@ -11,7 +13,11 @@ bugs: https://github.com/jgonyea/grav-plugin-podcast/issues
 docs: https://github.com/jgonyea/grav-plugin-podcast/blob/develop/README.md
 license: MIT
 
+compatibility:
+  grav: ['1.7', '2.0']
+
 dependencies:
+  - { name: grav, version: '>=1.7.0' }
   - breadcrumbs
   - feed
   - get-id3

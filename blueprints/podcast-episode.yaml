@@ -26,6 +26,11 @@ form:
               type: text
               label: PLUGIN_PODCAST.ADMIN.EPISODE.CONTENT.EPISODE_NUMBER_LABEL
               size: x-small
+            header.podcast.guid:
+              ordering@: 4
+              type: text
+              label: Persistent GUID
+              help: Keep this value unchanged after the episode has appeared in a feed.
         podcastAudio:
             type: tab
             title: PLUGIN_PODCAST.ADMIN.EPISODE.PODCAST_AUDIO.TAB_TITLE
@@ -81,4 +86,3 @@ form:
               options:
                   yes: PLUGIN_ADMIN.YES
                   no: PLUGIN_ADMIN.NO
-

@@ -5,9 +5,7 @@ The **Podcast** Plugin is for [Grav CMS](http://github.com/getgrav/grav). This p
 - Admin Page templates for Podcast Channel, Podcast Series, and Podcast Episode
 - An iTunes compatible podcast RSS feed, both at the Podcast Channel (all episodes) and Podcast Series (only a series' episodes)
 
-![Limited Development](https://img.shields.io/badge/Limited%20Development-1000?style=for-the-badge&logo=PHP&logoColor=ffffff&labelColor=000000&color=000000)
-
-> At this time, the project will not be converted to support Grav v2.0
+Version 4 supports Grav 1.7 and Grav 2.0, including the Admin2 API-based Page editor.
 
 ## Installation
 
@@ -31,7 +29,7 @@ You should now have all the plugin files under
 
 > NOTE: This plugin is a modular component for Grav which requires the following to operate:
 
-- [Grav Core](http://github.com/getgrav/grav)
+- [Grav Core](http://github.com/getgrav/grav) 1.7 or 2.0
 - [Admin](https://github.com/getgrav/grav-plugin-admin)
 - [Breadcrumbs](https://github.com/getgrav/grav-plugin-breadcrumbs)
 - [Feed](https://github.com/getgrav/grav-plugin-feed)
