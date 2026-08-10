@@ -1,5 +1,5 @@
 # v4.0.0
-## Unreleased
+## 08/10/2026
 
 1. [](#new)
    * Declare and test Grav 2.0 compatibility.

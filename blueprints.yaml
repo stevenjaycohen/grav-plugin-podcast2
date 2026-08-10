@@ -5,14 +5,14 @@ version: 4.0.0
 description: Maintained Grav 2-compatible fork providing Podcast page types and RSS feeds
 icon: microphone
 author:
-  name: Jeremy Gonyea
-  email: jeremy.gonyea@gmail.com
+  name: Steven Jay Cohen
+  email: steven.jay.cohen@gmail.com
 homepage: https://github.com/stevenjaycohen/grav-plugin-podcast2
 keywords: grav, plugin, podcast, music
 bugs: https://github.com/stevenjaycohen/grav-plugin-podcast2/issues
 docs: https://github.com/stevenjaycohen/grav-plugin-podcast2/blob/develop/README.md
 license: MIT
-gpm: false
+gpm: true
 
 compatibility:
   grav: ['1.7', '2.0']
