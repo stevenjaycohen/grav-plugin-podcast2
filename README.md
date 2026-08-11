@@ -5,15 +5,21 @@ The **Podcast 2** Plugin is a maintained fork for [Grav CMS](http://github.com/g
 - Admin Page templates for Podcast Channel, Podcast Series, and Podcast Episode
 - An iTunes compatible podcast RSS feed, both at the Podcast Channel (all episodes) and Podcast Series (only a series' episodes)
 
-~~**Limited Development:** At this time, the project will not be converted to support Grav v2.0.~~
-
-This fork exists to add and maintain Grav 2 compatibility, including support for the Admin2 API-based Page editor. Version 4 supports both Grav 1.7 and Grav 2.0.
+This fork exists to add and maintain Grav 2 compatibility, including support for the Admin2 API-based Page editor. Version 4 requires Grav 2.0 or newer.
 
 ## Installation
 
-This fork is not distributed or updated through the Grav Package Manager. Download the zip version of [this repository](https://github.com/stevenjaycohen/grav-plugin-podcast2), extract it under `user/plugins`, and rename the extracted directory to `podcast2`.
+The preferred installation method is the Grav Package Manager (GPM). From the root of your Grav installation, run:
 
-The directory name must be `podcast2`. Do not replace `user/plugins/podcast`; Podcast 2 has a separate plugin identity and configuration. Its GPM updates are disabled, so updates published for the original `podcast` slug cannot replace this fork.
+    bin/gpm install podcast2
+
+Update an existing GPM installation with:
+
+    bin/gpm update podcast2
+
+For a manual installation, download this repository, extract it under `user/plugins`, and rename the extracted directory to `podcast2`.
+
+The directory name must be `podcast2`. Do not replace `user/plugins/podcast`; Podcast 2 has a separate plugin identity and configuration, so both plugins can coexist.
 
 You should now have all the plugin files under
 
@@ -21,7 +27,7 @@ You should now have all the plugin files under
 
 > NOTE: This plugin is a modular component for Grav which requires the following to operate:
 
-- [Grav Core](http://github.com/getgrav/grav) 1.7 or 2.0
+- [Grav Core](http://github.com/getgrav/grav) 2.0 or newer
 - [Admin](https://github.com/getgrav/grav-plugin-admin)
 - [Breadcrumbs](https://github.com/getgrav/grav-plugin-breadcrumbs)
 - [Feed](https://github.com/getgrav/grav-plugin-feed)
@@ -77,6 +83,8 @@ Non-series episodes can exist next to series:
 ### Podcast Channel
 
 A podcast RSS feed is created at PAGENAME.rss of all episodes underneath the channel, including ones within series. RSS tags are filled with the appropriate data submitted in the admin form for a podcast channel/ episode.
+
+Podcast channel and series page blueprints select Podcast 2's `podcast-feed.rss.twig` through Feed's per-page RSS template setting. Other RSS pages continue to use the Feed plugin's default template.
 
 Example:
 If a podcast channel is created at at http://www.example.com/mypodcast, then the url for the podcast RSS feed is found at http://www.example.com/mypodcast.rss

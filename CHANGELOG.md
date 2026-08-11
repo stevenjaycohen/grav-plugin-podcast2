@@ -1,3 +1,20 @@
+# v4.0.1
+## 08/11/2026
+
+1. [](#improved)
+   * Restrict declared compatibility and the Grav dependency to Grav 2.0 and newer, and document GPM installation and updates.
+   * Stream remote audio into a temporary file with bounded cURL connection, transfer, and redirect limits.
+   * Complete PHPDoc coverage for the Podcast2 plugin class.
+   * Add a dependency-free unit and Grav HTTP regression suite for the 4.0.1 fixes.
+
+2. [](#bugfix)
+   * Build local enclosure URLs from the PageInterface-compatible route using URL separators.
+   * Restore `podcast-episode` selection for channel and series feeds, with direct-child scoping for series.
+   * Reject unsafe remote-audio URLs, non-public destinations, DNS rebinding, and unsafe redirect targets.
+   * Preserve configured local and remote audio input when retrieval or metadata calculation fails.
+   * Guard incomplete getID3 results and omit optional duration metadata when unavailable.
+   * Use a per-page `podcast-feed` RSS template, including an upgrade-safe default for existing podcast pages, without shadowing Feed's site-wide template.
+
 # v4.0.0
 ## 08/10/2026
 

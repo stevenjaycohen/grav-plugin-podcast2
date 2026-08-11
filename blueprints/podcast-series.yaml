@@ -23,6 +23,9 @@ form:
             header.content.items:
               type: hidden
               default: '@self.children'
+            header.feed.template.rss:
+              type: hidden
+              default: podcast-feed
             header.series.image:
               type: filepicker
               label: PLUGIN_PODCAST2.ADMIN.SERIES.CONTENT.SERIES_IMAGE_LABEL

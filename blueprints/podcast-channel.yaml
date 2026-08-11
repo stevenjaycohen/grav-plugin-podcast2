@@ -26,6 +26,9 @@ form:
             header.content.items:
               type: hidden
               default: '@self.descendants'
+            header.feed.template.rss:
+              type: hidden
+              default: podcast-feed
 
         channelMetaTab:
           type: tab

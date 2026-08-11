@@ -1,7 +1,7 @@
 name: Podcast 2
 type: plugin
 slug: podcast2
-version: 4.0.0
+version: 4.0.1
 description: Maintained Grav 2-compatible fork providing Podcast page types and RSS feeds
 icon: microphone
 author:
@@ -12,13 +12,12 @@ keywords: grav, plugin, podcast, music
 bugs: https://github.com/stevenjaycohen/grav-plugin-podcast2/issues
 docs: https://github.com/stevenjaycohen/grav-plugin-podcast2/blob/develop/README.md
 license: MIT
-gpm: true
 
 compatibility:
-  grav: ['1.7', '2.0']
+  grav: ['2.0']
 
 dependencies:
-  - { name: grav, version: '>=1.7.0' }
+  - { name: grav, version: '>=2.0.0' }
   - breadcrumbs
   - feed
   - get-id3
