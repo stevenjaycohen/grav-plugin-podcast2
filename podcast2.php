@@ -26,6 +26,9 @@ class Podcast2Plugin extends Plugin
     /** @var int Maximum number of remote HTTP redirects. */
     private const REMOTE_REDIRECT_LIMIT = 5;
 
+    /** @var int Maximum remote audio download size in bytes (512 MiB). */
+    private const REMOTE_FILESIZE_LIMIT = 512 * 1024 * 1024;
+
     /** @var array<string, int> Grav plugin feature priorities. */
     public $features = [
         'blueprints' => 0, // Use priority 0
@@ -307,11 +310,12 @@ class Podcast2Plugin extends Plugin
      * Retrieve an audio file's size from getID3 metadata.
      *
      * @param string $file Filesystem path to the audio file.
+     * @param array<string, mixed>|null $analysis Previously calculated getID3 data.
      * @return int|null Audio size in bytes, or null when unavailable.
      */
-    public static function retreiveAudioLength($file): ?int
+    public static function retreiveAudioLength($file, ?array $analysis = null): ?int
     {
-        $id3 = GetID3Plugin::analyzeFile($file);
+        $id3 = $analysis ?? GetID3Plugin::analyzeFile($file);
         $filesize = $id3['filesize'] ?? null;
 
         return is_numeric($filesize) && (int) $filesize > 0 ? (int) $filesize : null;
@@ -321,11 +325,12 @@ class Podcast2Plugin extends Plugin
      * Retrieve an audio file's MIME type from getID3 metadata.
      *
      * @param string $file Filesystem path to the audio file.
+     * @param array<string, mixed>|null $analysis Previously calculated getID3 data.
      * @return string|null MIME type, or null when unavailable.
      */
-    public static function retreiveAudioType($file): ?string
+    public static function retreiveAudioType($file, ?array $analysis = null): ?string
     {
-        $id3 = GetID3Plugin::analyzeFile($file);
+        $id3 = $analysis ?? GetID3Plugin::analyzeFile($file);
         $mime_type = $id3['mime_type'] ?? null;
 
         return is_string($mime_type) && $mime_type !== '' ? $mime_type : null;
@@ -335,11 +340,12 @@ class Podcast2Plugin extends Plugin
      * Retrieve an audio file's display duration from getID3 metadata.
      *
      * @param string $file Filesystem path to the audio file.
+     * @param array<string, mixed>|null $analysis Previously calculated getID3 data.
      * @return string|null Human-readable duration, or null when unavailable.
      */
-    public static function retreiveAudioDuration($file): ?string
+    public static function retreiveAudioDuration($file, ?array $analysis = null): ?string
     {
-        $id3 = GetID3Plugin::analyzeFile($file);
+        $id3 = $analysis ?? GetID3Plugin::analyzeFile($file);
         $duration = $id3['playtime_string'] ?? null;
 
         return is_string($duration) && $duration !== '' ? $duration : null;
@@ -354,9 +360,10 @@ class Podcast2Plugin extends Plugin
      */
     private function buildAudioMetadata(string $file): ?array
     {
-        $type = $this->retreiveAudioType($file);
-        $duration = $this->retreiveAudioDuration($file);
-        $length = $this->retreiveAudioLength($file);
+        $analysis = $this->analyzeAudioFile($file);
+        $type = $this->retreiveAudioType($file, $analysis);
+        $duration = $this->retreiveAudioDuration($file, $analysis);
+        $length = $this->retreiveAudioLength($file, $analysis);
 
         if ($type === null || $length === null) {
             return null;
@@ -371,6 +378,17 @@ class Podcast2Plugin extends Plugin
         }
 
         return $metadata;
+    }
+
+    /**
+     * Analyze an audio file once for all enclosure metadata fields.
+     *
+     * @param string $file Filesystem path to the audio file.
+     * @return array<string, mixed> Calculated getID3 data.
+     */
+    protected function analyzeAudioFile(string $file): array
+    {
+        return GetID3Plugin::analyzeFile($file);
     }
 
     /**
@@ -541,6 +559,17 @@ class Podcast2Plugin extends Plugin
             CURLOPT_CONNECTTIMEOUT => self::REMOTE_CONNECT_TIMEOUT,
             CURLOPT_TIMEOUT => self::REMOTE_TRANSFER_TIMEOUT,
             CURLOPT_MAXREDIRS => self::REMOTE_REDIRECT_LIMIT,
+            CURLOPT_MAXFILESIZE_LARGE => self::REMOTE_FILESIZE_LIMIT,
+            CURLOPT_NOPROGRESS => false,
+            CURLOPT_XFERINFOFUNCTION => static function (
+                $curl,
+                $download_size,
+                $downloaded,
+                $upload_size,
+                $uploaded
+            ): int {
+                return $downloaded > self::REMOTE_FILESIZE_LIMIT ? 1 : 0;
+            },
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_PROXY => '',
@@ -640,6 +669,17 @@ class Podcast2Plugin extends Plugin
         }
         $visited[$host] = true;
 
+        $system_addresses = $this->resolveSystemHostAddresses($host);
+        if ($system_addresses !== null) {
+            foreach ($system_addresses as $address) {
+                if (!$this->isPublicIpAddress($address)) {
+                    return null;
+                }
+            }
+
+            return array_values(array_unique($system_addresses));
+        }
+
         $records = dns_get_record($host, DNS_A | DNS_AAAA);
         if ($records === false) {
             return null;
@@ -666,6 +706,47 @@ class Podcast2Plugin extends Plugin
                     return null;
                 }
                 array_push($addresses, ...$resolved);
+            }
+        }
+
+        $addresses = array_values(array_unique($addresses));
+        return $addresses !== [] ? $addresses : null;
+    }
+
+    /**
+     * Resolve a hostname through the system resolver, including local and split-horizon configuration.
+     *
+     * @param string $host Hostname to resolve.
+     * @return list<string>|null Resolved IP addresses, or null when system resolution is unavailable or fails.
+     */
+    protected function resolveSystemHostAddresses(string $host): ?array
+    {
+        $addresses = [];
+        if (function_exists('socket_addrinfo_lookup') && function_exists('socket_addrinfo_explain')) {
+            try {
+                $records = @socket_addrinfo_lookup($host, null, ['ai_socktype' => SOCK_STREAM]);
+            } catch (\Throwable) {
+                $records = false;
+            }
+            if (is_array($records)) {
+                foreach ($records as $record) {
+                    $details = socket_addrinfo_explain($record);
+                    $address = $details['ai_addr']['sin_addr'] ?? $details['ai_addr']['sin6_addr'] ?? null;
+                    if (is_string($address) && filter_var($address, FILTER_VALIDATE_IP) !== false) {
+                        $addresses[] = $address;
+                    }
+                }
+            }
+        }
+
+        if ($addresses === []) {
+            $ipv4_addresses = @gethostbynamel($host);
+            if (is_array($ipv4_addresses)) {
+                $addresses = array_values(array_filter(
+                    $ipv4_addresses,
+                    static fn($address): bool => is_string($address)
+                        && filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false
+                ));
             }
         }
 

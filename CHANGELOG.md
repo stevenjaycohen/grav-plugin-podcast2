@@ -1,3 +1,16 @@
+# v4.0.2
+## 08/11/2026
+
+1. [](#improved)
+   * Cap remote audio downloads at 512 MiB, including responses without a declared content length.
+   * Reuse one getID3 analysis for all enclosure metadata fields during a save.
+   * Resolve remote hosts through the system resolver before applying the existing public-address validation and cURL pinning.
+   * Remove the obsolete classic Admin plugin requirement for this Grav 2-only release.
+   * Expand regression coverage for the download cap, one-pass analysis, system resolver, requirements, and episode URL rendering.
+
+2. [](#bugfix)
+   * Escape the episode download URL as an HTML attribute.
+
 # v4.0.1
 ## 08/11/2026
 

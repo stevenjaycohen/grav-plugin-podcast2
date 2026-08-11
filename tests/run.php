@@ -16,6 +16,7 @@ require __DIR__ . '/bootstrap.php';
 final class Podcast2FakeTransportPlugin extends Podcast2Plugin
 {
     public bool $failTransfer = false;
+    public bool $oversizedTransfer = false;
     public int $transferBytes = 8 * 1024 * 1024;
 
     /** @inheritDoc */
@@ -27,6 +28,10 @@ final class Podcast2FakeTransportPlugin extends Podcast2Plugin
     /** @inheritDoc */
     protected function performRemoteTransfer(string $url, $handle, array $target): array
     {
+        if ($this->oversizedTransfer) {
+            return ['result' => false, 'status' => 200, 'error' => CURLE_FILESIZE_EXCEEDED, 'location' => null];
+        }
+
         $chunk = str_repeat('P', 65536);
         $remaining = $this->failTransfer ? 262144 : $this->transferBytes;
         while ($remaining > 0) {
@@ -57,6 +62,40 @@ final class Podcast2FakeTransportPlugin extends Podcast2Plugin
             ['resolve' => 'audio.example.test:443:203.0.113.10'],
             $location
         );
+    }
+}
+
+/**
+ * Podcast2 test double that counts getID3 analysis calls.
+ */
+final class Podcast2CountingAnalysisPlugin extends Podcast2Plugin
+{
+    public int $analysisCalls = 0;
+
+    /** @inheritDoc */
+    protected function analyzeAudioFile(string $file): array
+    {
+        $this->analysisCalls++;
+        return parent::analyzeAudioFile($file);
+    }
+}
+
+/**
+ * Podcast2 test double with deterministic system-resolver answers.
+ */
+final class Podcast2ResolverPlugin extends Podcast2Plugin
+{
+    /** @var array<string, list<string>|null> */
+    public array $systemAnswers = [];
+
+    /** @inheritDoc */
+    protected function resolveSystemHostAddresses(string $host): ?array
+    {
+        if (array_key_exists($host, $this->systemAnswers)) {
+            return $this->systemAnswers[$host];
+        }
+
+        return parent::resolveSystemHostAddresses($host);
     }
 }
 
@@ -184,7 +223,7 @@ Regression series.
 YAML);
 
     $episodes = [
-        [$direct, 'Direct Episode', $channelRoute . '/direct-episode/audio.wav', 'direct-guid', '2026-01-02T12:00:00+00:00'],
+        [$direct, 'Direct Episode', $channelRoute . '/direct-episode/audio.wav?download=1&name=episode', 'direct-guid', '2026-01-02T12:00:00+00:00'],
         [$nested, 'Nested Episode', $channelRoute . '/test-series/nested-episode/audio.wav', 'nested-guid', '2026-01-01T12:00:00+00:00'],
     ];
     foreach ($episodes as [$directory, $title, $audioRoute, $guid, $date]) {
@@ -322,6 +361,8 @@ $cleanupError = null;
 $grav = Grav::instance();
 $plugin = new Podcast2Plugin('podcast2', $grav, $grav['config']);
 $fakePlugin = new Podcast2FakeTransportPlugin('podcast2', $grav, $grav['config']);
+$countingPlugin = new Podcast2CountingAnalysisPlugin('podcast2', $grav, $grav['config']);
+$resolverPlugin = new Podcast2ResolverPlugin('podcast2', $grav, $grav['config']);
 register_shutdown_function(static function () use (&$server, $fixtures, $imageState): void {
     try {
         podcast2StopServer($server);
@@ -372,7 +413,7 @@ try {
 
     $harness->test('manifest and feed blueprint defaults', static function (): void {
         $manifest = Yaml::parseFile(PODCAST2_TEST_SOURCE . '/blueprints.yaml');
-        Podcast2TestHarness::same('4.0.1', $manifest['version'] ?? null, 'Plugin version mismatch');
+        Podcast2TestHarness::same('4.0.2', $manifest['version'] ?? null, 'Plugin version mismatch');
         Podcast2TestHarness::same(['2.0'], $manifest['compatibility']['grav'] ?? null, 'Grav compatibility mismatch');
         Podcast2TestHarness::assert(!array_key_exists('gpm', $manifest), 'Unsupported gpm key remains');
         Podcast2TestHarness::same('>=2.0.0', $manifest['dependencies'][0]['version'] ?? null, 'Grav dependency mismatch');
@@ -386,6 +427,16 @@ try {
         Podcast2TestHarness::assert(str_contains($template, ".ofType('podcast-episode')"), 'Podcast feed episode filter is incorrect');
         Podcast2TestHarness::assert(str_contains($template, "'@self.children' : '@self.descendants'"), 'Series/direct scoping is missing');
         Podcast2TestHarness::assert(!str_contains($template, 'xmlns:atom='), 'Generic Feed fallback remains in podcast template');
+
+        $episodeTemplate = file_get_contents(PODCAST2_TEST_SOURCE . '/templates/podcast-episode.html.twig');
+        Podcast2TestHarness::assert(
+            str_contains($episodeTemplate, "header.podcast.audio.meta.guid|e('html_attr')"),
+            'Episode download URL is not escaped as an HTML attribute'
+        );
+
+        $readme = file_get_contents(PODCAST2_TEST_SOURCE . '/README.md');
+        Podcast2TestHarness::assert(!str_contains($readme, '[Admin]('), 'Classic Admin is still listed as a requirement');
+        Podcast2TestHarness::assert(str_contains($readme, "system resolver"), 'System resolver behavior is not documented');
     });
 
     $harness->test('regular Page local-audio save', static function () use ($plugin, $fixtures): void {
@@ -402,6 +453,14 @@ try {
         Podcast2TestHarness::same('audio.wav', $local['select'] ?? null, 'Local selection was not retained');
         $paths = array_column(array_filter($local, 'is_array'), 'path');
         Podcast2TestHarness::assert(in_array($meta['guid'], $paths, true), 'Backward-compatible local media path missing');
+    });
+
+    $harness->test('audio metadata uses one getID3 analysis per save', static function () use ($countingPlugin, $fixtures): void {
+        $page = new Page();
+        $page->init(new SplFileInfo($fixtures['direct_page']));
+        $page->route($fixtures['channel_route'] . '/direct-episode');
+        $countingPlugin->onAdminSave(new Event(['object' => $page]));
+        Podcast2TestHarness::same(1, $countingPlugin->analysisCalls, 'Audio file was analyzed more than once');
     });
 
     $harness->test('legacy Feed fields preserve template configuration', static function () use ($plugin, $fixtures): void {
@@ -438,6 +497,15 @@ try {
         Podcast2TestHarness::same('https://audio.example.test/fail.mp3', $header['podcast']['audio']['remote'] ?? null, 'Remote URL was erased');
         Podcast2TestHarness::assert(!isset($header['podcast']['audio']['meta']), 'Stale remote metadata remains');
         Podcast2TestHarness::same($before, $after, 'Failed remote transfer leaked a temporary file');
+
+        $fakePlugin->failTransfer = false;
+        $fakePlugin->oversizedTransfer = true;
+        $page->header(['title' => 'Oversized Remote', 'podcast' => ['audio' => ['remote' => 'https://audio.example.test/oversized.mp3', 'meta' => ['guid' => '/stale']]]]);
+        $fakePlugin->onAdminSave(new Event(['object' => $page]));
+        $header = (array) $page->header();
+        Podcast2TestHarness::same('https://audio.example.test/oversized.mp3', $header['podcast']['audio']['remote'] ?? null, 'Oversized remote URL was erased');
+        Podcast2TestHarness::assert(!isset($header['podcast']['audio']['meta']), 'Oversized response left stale metadata');
+        $fakePlugin->oversizedTransfer = false;
     });
 
     $harness->test('incomplete getID3 results are nullable', static function () use ($plugin): void {
@@ -467,6 +535,8 @@ try {
             'http://0.0.0.0/file', 'http://224.0.0.1/file', 'http://192.0.2.1/file',
             'http://[::1]/file', 'http://[fc00::1]/file', 'http://[fe80::1]/file',
             'http://[::]/file', 'http://[ff02::1]/file', 'http://[fec0::1]/file',
+            'http://0x7f000001/file', 'http://2130706433/file',
+            'http://metadata.google.internal/file', "http://example.test\r\n.invalid/file",
         ] as $url) {
             Podcast2TestHarness::same(null, $validate->invoke($plugin, $url), "Unsafe URL accepted: {$url}");
         }
@@ -483,6 +553,32 @@ try {
         Podcast2TestHarness::same(null, $validate->invoke($plugin, $unsafe), 'Unsafe redirect target accepted');
     });
 
+    $harness->test('system resolver addresses are validated and pinned', static function () use ($resolverPlugin): void {
+        $resolverPlugin->systemAnswers = [
+            'split.example.test' => ['8.8.8.8', '2001:4860:4860::8888'],
+            'private.example.test' => ['127.0.0.1'],
+            'mixed.example.test' => ['8.8.8.8', '10.0.0.1'],
+        ];
+        $validate = new ReflectionMethod($resolverPlugin, 'validateRemoteUrl');
+        $validate->setAccessible(true);
+        Podcast2TestHarness::same(
+            ['resolve' => 'split.example.test:443:8.8.8.8,[2001:4860:4860::8888]'],
+            $validate->invoke($resolverPlugin, 'https://split.example.test/audio.mp3'),
+            'System-resolved public addresses were not pinned'
+        );
+        Podcast2TestHarness::same(
+            null,
+            $validate->invoke($resolverPlugin, 'https://private.example.test/audio.mp3'),
+            'System-resolved private address was accepted'
+        );
+        Podcast2TestHarness::same(
+            null,
+            $validate->invoke($resolverPlugin, 'https://mixed.example.test/audio.mp3'),
+            'Mixed public and private system-resolver answers were accepted'
+        );
+        Podcast2TestHarness::same(null, $validate->invoke($resolverPlugin, 'http://localhost/audio.mp3'), 'Localhost was accepted');
+    });
+
     $harness->test('bounded cURL configuration', static function () use ($fakePlugin): void {
         $handle = fopen('php://temp', 'w+b');
         Podcast2TestHarness::assert(is_resource($handle), 'Cannot open cURL option test stream');
@@ -494,12 +590,17 @@ try {
             Podcast2TestHarness::same(10, $options[CURLOPT_CONNECTTIMEOUT] ?? null, 'Connection timeout mismatch');
             Podcast2TestHarness::same(60, $options[CURLOPT_TIMEOUT] ?? null, 'Transfer timeout mismatch');
             Podcast2TestHarness::same(5, $options[CURLOPT_MAXREDIRS] ?? null, 'Redirect limit mismatch');
+            Podcast2TestHarness::same(512 * 1024 * 1024, $options[CURLOPT_MAXFILESIZE_LARGE] ?? null, 'File-size limit mismatch');
+            Podcast2TestHarness::same(false, $options[CURLOPT_NOPROGRESS] ?? null, 'Transfer progress callback is disabled');
             Podcast2TestHarness::same(false, $options[CURLOPT_FOLLOWLOCATION] ?? null, 'Automatic redirects must be disabled');
             Podcast2TestHarness::same('', $options[CURLOPT_PROXY] ?? null, 'Proxy must be disabled');
             Podcast2TestHarness::assert(isset($options[CURLOPT_RESOLVE]), 'Validated DNS pin is missing');
             $callback = $options[CURLOPT_HEADERFUNCTION];
             $callback(null, "Location: /next.mp3\r\n");
             Podcast2TestHarness::same('/next.mp3', $location, 'Location header was not captured');
+            $progress = $options[CURLOPT_XFERINFOFUNCTION];
+            Podcast2TestHarness::same(0, $progress(null, 0, 512 * 1024 * 1024, 0, 0), 'Transfer stopped at the byte limit');
+            Podcast2TestHarness::same(1, $progress(null, 0, 512 * 1024 * 1024 + 1, 0, 0), 'Oversized transfer was not stopped');
         } finally {
             fclose($handle);
         }
@@ -595,6 +696,16 @@ try {
         $ordinary = $responses[$fixtures['ordinary_route'] . '.rss']['body'];
         Podcast2TestHarness::assert(str_contains($ordinary, 'xmlns:atom='), 'Ordinary feed did not use Feed template');
         Podcast2TestHarness::assert(!str_contains($ordinary, 'xmlns:itunes='), 'Podcast2 shadowed ordinary feed');
+
+        $episode = $responses[$fixtures['channel_route'] . '/direct-episode']['body'];
+        $episodeDocument = new DOMDocument();
+        Podcast2TestHarness::assert($episodeDocument->loadHTML($episode), 'Rendered episode HTML could not be parsed');
+        $audio = $episodeDocument->getElementsByTagName('audio')->item(0);
+        Podcast2TestHarness::assert($audio instanceof DOMElement, 'Rendered episode audio element is missing');
+        Podcast2TestHarness::assert(str_contains($audio->getAttribute('src'), 'audio.wav'), 'Rendered episode audio source is incorrect');
+        $download = $audio->getElementsByTagName('a')->item(0);
+        Podcast2TestHarness::assert($download instanceof DOMElement, 'Rendered episode download link is missing');
+        Podcast2TestHarness::same($audio->getAttribute('src'), $download->getAttribute('href'), 'Rendered audio and download URLs differ');
 
         podcast2StopServer($server);
         $log = is_file($serverLog) ? file_get_contents($serverLog) : '';

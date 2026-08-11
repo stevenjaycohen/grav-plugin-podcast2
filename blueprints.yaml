@@ -1,7 +1,7 @@
 name: Podcast 2
 type: plugin
 slug: podcast2
-version: 4.0.1
+version: 4.0.2
 description: Maintained Grav 2-compatible fork providing Podcast page types and RSS feeds
 icon: microphone
 author:

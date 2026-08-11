@@ -28,7 +28,6 @@ You should now have all the plugin files under
 > NOTE: This plugin is a modular component for Grav which requires the following to operate:
 
 - [Grav Core](http://github.com/getgrav/grav) 2.0 or newer
-- [Admin](https://github.com/getgrav/grav-plugin-admin)
 - [Breadcrumbs](https://github.com/getgrav/grav-plugin-breadcrumbs)
 - [Feed](https://github.com/getgrav/grav-plugin-feed)
 - [GetId3](https://github.com/jgonyea/grav-plugin-get-id3), along with its accompanying [getID3 php library](http://www.getid3.org/)
@@ -46,6 +45,8 @@ enabled: true
 ```
 
 _Defaults plugin to **enabled** after installation_
+
+Remote audio validation resolves hostnames through PHP's system resolver before pinning every validated public address into cURL. This supports system resolver configuration such as `/etc/hosts` and split-horizon DNS while continuing to reject local, private, reserved, or otherwise non-public destinations.
 
 ## Usage
 

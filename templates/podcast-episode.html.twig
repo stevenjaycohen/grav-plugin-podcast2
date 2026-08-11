@@ -28,7 +28,7 @@
             {% if (header.podcast.audio.meta.guid) %}
                 <div class="podcast-episode-audio">
                     <audio controls preload="metadata"><source src="{{ page.header.podcast.audio.meta.guid|e('html_attr') }}">{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.WARNING'|t|e }}</audio><br>
-                    <a href ="{{ header.podcast.audio.meta.guid }}">{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.DOWNLOAD'|t|e }}</a> | Published {{ episode_datestamp|nicetime(false) }}
+                    <a href ="{{ header.podcast.audio.meta.guid|e('html_attr') }}">{{ 'PLUGIN_PODCAST2.EPISODE_CONTENT.DOWNLOAD'|t|e }}</a> | Published {{ episode_datestamp|nicetime(false) }}
                 </div>
             {% else %}
                 <div><p>No audio for this episode</p></div>
