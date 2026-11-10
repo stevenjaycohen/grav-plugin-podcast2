@@ -5,7 +5,7 @@ This dependency-free suite exercises the Podcast2 4.0.2 release against an exist
 Run it from any directory with an explicit Grav root:
 
 ```bash
-PODCAST2_TEST_GRAV_ROOT=/absolute/path/to/grav php /absolute/path/to/podcast2-repo/tests/run.php
+PODCAST2_TEST_GRAV_ROOT=/absolute/path/to/grav php /absolute/path/to/podcast2/tests/run.php
 ```
 
 The command exits `0` only when every assertion passes. It covers:
